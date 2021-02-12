@@ -1,0 +1,46 @@
+{
+  "name": "tf",
+  "version": "1.0.0",
+  "description": "Input items into todoist from your command line.",
+  "main": "built/index.js",
+  "scripts": {
+    "test": "jest --watchAll",
+    "build": "babel src --out-dir built",
+    "build-watch": "npm run build -- --watch",
+    "start": "node ./built/index.js",
+    "lint": "prettier --write ."
+  },
+  "bin": {
+    "tf": "./built/index.js"
+  },
+  "author": "autumn crossan",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.12.13",
+    "@babel/core": "^7.12.13",
+    "@babel/plugin-transform-modules-commonjs": "^7.12.13",
+    "jest": "^26.6.3",
+    "prettier": "^2.2.1"
+  },
+  "babel": {
+    "plugins": [
+      "@babel/plugin-transform-modules-commonjs"
+    ]
+  },
+  "jest": {
+    "modulePathIgnorePatterns": [
+      "<rootDir>/built/"
+    ]
+  },
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "yargs": "^16.2.0"
+  },
+  "prettier": {
+    "printWidth": 150,
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "arrowParens": "avoid"
+  }
+}
