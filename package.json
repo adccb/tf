@@ -4,7 +4,7 @@
   "description": "Input items into todoist from your command line.",
   "main": "built/index.js",
   "scripts": {
-    "test": "jest --watchAll",
+    "test": "NODE_ENV=test jest --watchAll",
     "build": "babel src --out-dir built",
     "build-watch": "npm run build -- --watch",
     "start": "node ./built/index.js",
@@ -23,14 +23,11 @@
     "prettier": "^2.2.1"
   },
   "babel": {
-    "plugins": [
-      "@babel/plugin-transform-modules-commonjs"
-    ]
+    "plugins": ["@babel/plugin-transform-modules-commonjs"]
   },
   "jest": {
-    "modulePathIgnorePatterns": [
-      "<rootDir>/built/"
-    ]
+    "modulePathIgnorePatterns": ["<rootDir>/built/"],
+    "setupFiles": ["<rootDir>/jest-setup.js"]
   },
   "dependencies": {
     "chalk": "^4.1.0",
