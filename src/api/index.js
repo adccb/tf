@@ -24,10 +24,26 @@ const tasks = [
   },
 ]
 
-export const getProjects = () => Promise.resolve(projects)
-export const getLabels = () => Promise.resolve(labels)
-export const hydrateData = () => Promise.all([getProjects(), getLabels()])
+const sections = [
+  {
+    name: 'eng',
+    project_id: 1,
+  },
+  {
+    name: 'meta',
+    project_id: 1,
+  },
+]
+
 export const putNote = note => Promise.resolve(note)
+export const getProjects = filter => Promise.resolve(filter === 'ALL' ? projects : projects.filter(({ name }) => new RegExp(`^${filter}`).test(name)))
+export const getLabels = filter => Promise.resolve(filter === 'ALL' ? labels : labels.filter(({ name }) => new RegExp(`^${filter}`).test(name)))
+export const hydrateData = () => Promise.all([getProjects(), getLabels()])
+
+export const getSections = projectName =>
+  hydrateData().then(([projects]) =>
+    Promise.resolve(sections.filter(({ project_id }) => project_id === projects.find(({ name }) => name === projectName).id)),
+  )
 
 export const getTasks = projectName =>
   hydrateData().then(([projects, labels]) =>
@@ -44,3 +60,11 @@ export const getTasks = projectName =>
         })),
       ),
   )
+
+export default {
+  putNote,
+  getProjects,
+  getLabels,
+  getSections,
+  getTasks,
+}

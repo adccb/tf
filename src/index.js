@@ -3,30 +3,42 @@
 import yargs from 'yargs'
 import helpers from 'yargs/helpers'
 
-import { putNote, getProjects, getLabels, getTasks } from './api'
-import { map, parse, handleTasks, handleLabels, handleProjects, handleNote } from './utils'
+import prodApi from './api'
+import { map, parse, handleTasks, handleLabels, handleProjects, handleSections, withDefault } from './utils'
 
 const args = yargs(helpers.hideBin(process.argv))
   .command('add [todo]', 'add todo item', {}, argv => {
     if (!Boolean(argv.todo)) {
-      yargs.showHelp(), process.exit()
+      yargs.showHelp()
+      process.exit()
     }
+
+    argv.todo = [argv.todo, ...argv['_'].slice(1)].join(' ')
   })
-  .command('tasks [project]', 'list items in a project', { project: { default: 'ALL' } })
   .option('labels', { alias: 'l' })
   .option('projects', { alias: 'p' })
+  .option('tasks', { alias: 't' })
+  .option('sections', { alias: 's' })
   .help().argv
 
-export const main = ({ todo, labels, project, projects }) => {
+export const main = ({ todo, labels, sections, tasks, projects }, { putNote, getProjects, getLabels, getSections, getTasks }) => {
   if (todo) {
-    putNote(todo).then(handleNote)
+    // parse todoist's DSL for familiarity
+    const { text, tags } = parse(todo)
+    putNote(todo)
   } else if (labels) {
-    getLabels().then(map('name')).then(handleLabels)
+    // print labels
+    getLabels(withDefault(labels, 'ALL')).then(map('name')).then(handleLabels)
   } else if (projects) {
-    getProjects().then(map('name')).then(handleProjects)
-  } else if (project) {
-    getTasks(project).then(handleTasks)
+    // print projects
+    getProjects(withDefault(projects, 'ALL')).then(map('name')).then(handleProjects)
+  } else if (sections) {
+    // print sections
+    getSections(withDefault(sections, 'kyruus')).then(map('name')).then(handleSections)
+  } else if (tasks) {
+    // get all tasks in a project
+    getTasks(withDefault(tasks, 'ALL')).then(handleTasks)
   }
 }
 
-main(args)
+main(args, prodApi)
