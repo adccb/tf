@@ -23,10 +23,13 @@ describe('split', () => {
 
 describe('parse', () => {
   it('should dtrt', () => {
-    const input = 'hello! my @name name is #autumn /and whateber'
+    const input = 'hello! my @name name !2 is #autumn /and whateber'
 
     expect(parse(input)).toEqual({
-      tags: ['@name', '#autumn', '/and'],
+      label: ['name'],
+      project: 'autumn',
+      section: 'and',
+      priority: 2,
       text: 'hello! my name is whateber',
     })
   })

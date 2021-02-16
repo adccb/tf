@@ -23,18 +23,25 @@
     "prettier": "^2.2.1"
   },
   "babel": {
-    "plugins": ["@babel/plugin-transform-modules-commonjs"]
+    "plugins": [
+      "@babel/plugin-transform-modules-commonjs"
+    ]
   },
   "jest": {
-    "modulePathIgnorePatterns": ["<rootDir>/built/"],
-    "setupFiles": ["<rootDir>/jest-setup.js"]
+    "modulePathIgnorePatterns": [
+      "<rootDir>/built/"
+    ],
+    "setupFiles": [
+      "<rootDir>/jest-setup.js"
+    ]
   },
   "dependencies": {
     "chalk": "^4.1.0",
+    "enquirer": "^2.3.6",
     "yargs": "^16.2.0"
   },
   "prettier": {
-    "printWidth": 150,
+    "printWidth": 90,
     "semi": false,
     "singleQuote": true,
     "trailingComma": "all",
