@@ -19,6 +19,18 @@ describe('main', () => {
     })
   })
 
+  it('should handle the complete case', () => {
+    const completeNote = jest.fn(mockApi.completeNote)
+    run({ complete: true }, { completeNote })
+    expect(completeNote).toHaveBeenCalledWith({
+      content: 'say hi',
+      priority: 1,
+      labels: [3],
+      project_id: 1,
+      section_id: 9,
+    })
+  })
+
   it('should handle the getLabels case', () => {
     const getLabels = jest.fn(mockApi.getLabels)
     run({ labels: true }, { getLabels })

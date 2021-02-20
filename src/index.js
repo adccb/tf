@@ -4,17 +4,9 @@ import yargs from 'yargs'
 import helpers from 'yargs/helpers'
 import { Select } from 'enquirer'
 import prodApi from './api'
-import {
-  map,
-  parse,
-  handleTasks,
-  handleLabels,
-  handleProjects,
-  handleSections,
-  formatProject,
-  formatLabel,
-  withDefault,
-} from './utils'
+import { parse, Label, Project, Task, Section } from './class'
+import { map, formatProject, formatLabel, withDefault } from './utils'
+import { completeTask } from './views/'
 
 const args = yargs(helpers.hideBin(process.argv))
   .command('add [todo]', 'add todo item', {}, argv => {
@@ -32,10 +24,11 @@ const args = yargs(helpers.hideBin(process.argv))
   .option('complete', { alias: 'c' })
   .help().argv
 
-export const main = (
+export const main = async (
   { todo, labels, sections, tasks, projects, complete }, // yargs options
   {
     putNote,
+    completeNote,
     getProjects,
     getLabels,
     getSections,
@@ -44,60 +37,40 @@ export const main = (
     toSectionId,
     toProjectId,
   }, // api functions for easy test mocking
+  { completeTask }, // views
 ) => {
   if (todo) {
     // parse todoist's DSL for familiarity, then create a thing
-    const { project, section, label, text, priority } = parse(todo)
+    const { project, section, label, task, priority } = parse(todo)
 
     putNote({
-      content: text,
+      content: task,
       section_id: toSectionId(section),
       labels: toLabelIds(label),
       project_id: toProjectId(project),
       priority,
     })
   } else if (complete) {
-    getTasks('ALL').then(async allTasks => {
-      const projects = Array.from(new Set(map('projectName', allTasks)))
-      const projectSelect = new Select({
-        name: 'project',
-        message: 'we found tasks in these projects. which did you mean?',
-        choices: projects,
-      })
-
-      const project = await projectSelect.run()
-      const tasks = allTasks
-        .filter(({ projectName }) => projectName === project)
-        .map(
-          ({ id, content, labelNames }) =>
-            `[${id}]: ${content} | ${labelNames
-              .map(({ name }) => formatLabel(name))
-              .join(' ')}`,
-        )
-
-      const taskSelect = new Select({
-        name: 'task',
-        message: `we found these tasks in ${formatProject(project)}. which did you mean?`,
-        result: val => val.match(/^\[(?<id>\d+)\]/).groups.id,
-        choices: tasks,
-      })
-
-      const task = await taskSelect.run()
-      console.log({ task })
-    })
+    const taskId = await completeTask({ getTasks })
+    completeNote(taskId)
   } else if (labels) {
     // print labels
-    getLabels(withDefault(labels, 'ALL')).then(map('name')).then(handleLabels)
+    getLabels(withDefault(labels, 'ALL')).then(map('name')).then(Label.handleLabels)
   } else if (projects) {
     // print projects
-    getProjects(withDefault(projects, 'ALL')).then(map('name')).then(handleProjects)
+    console.log({ p: Project.handleProjects })
+    getProjects(withDefault(projects, 'ALL'))
+      .then(map('name'))
+      .then(Project.handleProjects)
   } else if (sections) {
     // print sections
-    getSections(withDefault(sections, 'kyruus')).then(map('name')).then(handleSections)
+    getSections(withDefault(sections, 'kyruus'))
+      .then(map('name'))
+      .then(Section.handleSections)
   } else if (tasks) {
     // get all tasks in a project
-    getTasks(withDefault(tasks, 'ALL')).then(handleTasks)
+    getTasks(withDefault(tasks, 'ALL')).then(Task.handleTasks)
   }
 }
 
-main(args, prodApi)
+main(args, prodApi, { completeTask })

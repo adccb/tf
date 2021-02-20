@@ -1,7 +1,11 @@
 import { map, filter } from '../utils'
 import { projects, labels, tasks, sections } from './entities'
 
+// dictation functions
 export const putNote = note => Promise.resolve(note)
+export const completeNote = id => Promise.resolve(id)
+
+// consumption functions
 export const getProjects = filter =>
   Promise.resolve(
     filter === 'ALL'
